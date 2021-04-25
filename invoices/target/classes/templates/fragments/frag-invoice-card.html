@@ -1,0 +1,28 @@
+<div th:fragment="invoice-card">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4 class="card-title text-capitalize" th:text="'Factura ' + ${invoice.getNum()}"></h4>
+                    <h6 class="card-subtitle mb-2 text-muted" th:text="${invoice.getName()}">Nombre de cliente</h6>
+                </div>
+                <div class="col-sm-6">
+                    <form class="form-inline float-right">
+                        <button type="button" class="btn btn-sm btn-dark mx-1 my-2" data-toggle="modal" data-target="#invoice-edit-modal" th:data-id="${invoice.getId()}">Editar Factura</button>
+                        <button type="button" class="btn btn-sm btn-dark mx-1 my-2" data-toggle="modal" data-target="#invoice-send-modal" th:data-id="${invoice.getId()}">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush" th:each="invoiceLine : ${invoice.getLines()}">
+                <li class="list-group-item text-justify">
+                    <span th:text="${invoiceLine.getDescription()}"></span>
+                </li>
+            </ul>
+        </div>
+        <div class="card-footer text-muted text-right">
+            <span th:text="${invoice.getTotal()}">Precio Total</span>
+        </div>
+    </div>
+</div>
