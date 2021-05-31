@@ -1,5 +1,5 @@
-<div th:fragment="invoice-card">
-    <div class="card">
+<th:block th:fragment="invoice-card">
+    <div class="card h-100">
         <div class="card-header">
             <div class="row">
                 <div class="col-sm-6">
@@ -21,8 +21,11 @@
                 </li>
             </ul>
         </div>
-        <div class="card-footer text-muted text-right">
-            <span th:text="${invoice.getTotal()}">Precio Total</span>
+        <div class="card-footer">
+            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal" th:data-id="${invoice.getId()}" th:data-num="${invoice.getNum()}">Borrar</button>
+            <div class="text-muted float-right">
+                <span th:text="${'IVA: ' +  invoice.getIva() + ' Total: ' + invoice.getTotal()}">Precio Total</span>
+            </div>
         </div>
     </div>
-</div>
+</th:block>

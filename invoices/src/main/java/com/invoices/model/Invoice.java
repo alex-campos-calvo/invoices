@@ -1,5 +1,6 @@
 package com.invoices.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -43,11 +44,14 @@ public class Invoice {
     @Column(name = "state")
     private String state;
 
+    @Column(name = "iva")
+    private String iva;
+
     @Column(name = "total")
     private String total;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoice")
-    private Set<InvoiceLine> lines = new HashSet<InvoiceLine>();
+    private List<InvoiceLine> lines = new ArrayList<InvoiceLine>();
 
     public Invoice() {
 
@@ -125,6 +129,14 @@ public class Invoice {
         this.state = state;
     }
 
+    public String getIva() {
+        return iva;
+    }
+
+    public void setIva(String iva) {
+        this.iva = iva;
+    }
+
     public String getTotal() {
         return total;
     }
@@ -133,11 +145,11 @@ public class Invoice {
         this.total = total;
     }
 
-    public Set<InvoiceLine> getLines() {
+    public List<InvoiceLine> getLines() {
         return lines;
     }
 
-    public void setLines(Set<InvoiceLine> lines) {
+    public void setLines(List<InvoiceLine> lines) {
         this.lines = lines;
     }
 
@@ -153,6 +165,7 @@ public class Invoice {
                 ", address='" + address + '\'' +
                 ", zip_code='" + zip_code + '\'' +
                 ", state='" + state + '\'' +
+                ", iva='" + iva + '\'' +
                 ", total='" + total + '\'' +
                 ", lines=" + lines +
                 '}';
@@ -164,6 +177,12 @@ public class Invoice {
 
         public static InvoiceFactory create() {
             return new InvoiceFactory();
+        }
+
+        public static InvoiceFactory update(Invoice invoice) {
+            InvoiceFactory invoiceFactory = new InvoiceFactory();
+            invoiceFactory.invoice = invoice;
+            return invoiceFactory;
         }
 
         public InvoiceFactory number(int num) {
@@ -198,6 +217,12 @@ public class Invoice {
         public InvoiceFactory zip_code(String zip_code) {
             if(zip_code != null && !zip_code.trim().isEmpty())
                 invoice.zip_code = zip_code;
+            return this;
+        }
+
+        public InvoiceFactory iva(String iva) {
+            if(iva != null && !iva.trim().isEmpty())
+                invoice.iva = iva;
             return this;
         }
 

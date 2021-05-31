@@ -16,8 +16,35 @@ public class Config {
     @Column(name = "num")
     private Integer num;
 
+    @Column(name = "iva")
+    private Double iva;
+
     public Config() {
 
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
+    }
+
+    public Double getIva() {
+        return iva;
+    }
+
+    public void setIva(Double iva) {
+        this.iva = iva;
     }
 
     public static class ConfigFactory {
@@ -28,9 +55,13 @@ public class Config {
             return new Config.ConfigFactory();
         }
 
-        public Config.ConfigFactory number(Integer num) {
-            if(num != null)
-                config.num = Integer.valueOf(num);
+        public Config.ConfigFactory number(int num) {
+            config.num = num;
+            return this;
+        }
+
+        public Config.ConfigFactory iva(double iva) {
+            config.iva = iva;
             return this;
         }
 
