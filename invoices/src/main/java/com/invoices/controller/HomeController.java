@@ -1,15 +1,12 @@
 package com.invoices.controller;
 
 import com.invoices.model.Invoice;
-import com.invoices.model.InvoiceLine;
 import com.invoices.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
 
 @Controller
 public class HomeController {
@@ -23,13 +20,27 @@ public class HomeController {
         return "home";
     }
 
+    @GetMapping("/invoice/{id}")
+    public String homePage(Model model, @PathVariable("id") Integer id) {
+        model.addAttribute("invoice", invoiceService.getById(id));
+        return "invoice";
+    }
+
+    @PostMapping(path = "/save/{id}")
+    public String save(Model model, Invoice invoice, @PathVariable("id") Integer id) {
+        System.out.println("LOGGER: Saving Invoice: " + invoice);
+        invoiceService.update(invoice);
+        return "redirect:/invoice/"+id;
+    }
+
+    /*
     @PutMapping(path = "/delete-invoice/{id}")
     public ResponseEntity<Invoice> deleteInvoice(@PathVariable("id") Integer id) {
         invoiceService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path = "/save-new-invoice", consumes = "application/json")
+    @PostMapping(path = "/save/{id}", consumes = "application/json")
     public ResponseEntity<Invoice> saveInvoice(@RequestBody Invoice invoice) {
         System.out.println("LOG: Creating Invoice: " + invoice);
         invoiceService.create(invoice);
@@ -64,5 +75,6 @@ public class HomeController {
 
         return "fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal";
     }
+    */
 
 }

@@ -3,76 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Facturas</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/mdbootstrap-bootstrap-material-design/css/mdb.min.css}"/>
 </head>
 <body>
-<nav class="navbar sticky-top navbar-dark bg-dark justify-content-between">
-    <form class="form-inline">
-        <button type="button" class="btn btn-outline-light border-dark mx-1" data-toggle="modal" data-target="#invoice-new-modal">Nueva Factura</button>
-        <button type="button" class="btn btn-outline-light border-dark mx-1" data-toggle="modal" data-target="#budget-new-modal">Nuevo Presupuesto</button>
-    </form>
-    <form class="form-inline">
-        <input class="form-control mx-1" type="search" placeholder="Búsqueda" aria-label="Búsqueda">
-        <button class="btn btn-outline-light border-dark mx-1" type="submit">Buscar</button>
-    </form>
-</nav>
+
+<th:block th:replace="fragments/navbar/navbar :: navbar"></th:block>
 
 <div class="container-fluid p-5">
-    <div class="row">
-        <div class="col-sm-6 p-2" th:each="invoice : ${invoices}">
-            <th:block th:replace="fragments/frag-invoice-card :: invoice-card"></th:block>
-        </div>
-    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Número</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Fecha de factura</th>
+            <th scope="col">Fecha de creación</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="invoice, i : ${invoices}" class='enter-invoice' th:data-href="${'/invoice/' + invoice.id}">
+            <th scope="row"><span th:text="${i.index}"></span></th>
+            <td><span th:text="${invoice.num}">-</span></td>
+            <td><span th:text="${invoice.name}">-</span></td>
+            <td><span>-</span></td>
+            <td><span th:text="${invoice.createdDate}">-</span></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
-<div class="container-fluid fixed-bottom p-0">
-    <img class="img-fluid img-thumbnail rounded-circle float-right" th:src="@{/img/icon.png}" width="70" height="70">
-</div>
-
-<div class="modal fade" id="invoice-edit-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content" id="invoice-edit-modal-content">
-            <th:block th:replace="fragments/modal/edit/frag-invoice-edit-modal :: frag-invoice-edit-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="invoice-send-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content" id="invoice-send-modal-content">
-            <th:block th:replace="fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="invoice-new-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <th:block th:replace="fragments/modal/new/frag-invoice-new-modal :: frag-invoice-new-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="budget-new-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <th:block th:replace="fragments/modal/new/frag-budget-new-modal :: frag-budget-new-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-        <div class="modal-content">
-            <th:block th:replace="fragments/modal/delete/frag-delete-modal :: frag-delete-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js}"></script>
 <script th:src="@{/js/scripts.js}"></script>
 </body>
 </html>

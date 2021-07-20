@@ -1,0 +1,21 @@
+<th:block th:fragment="navbar">
+    <nav class="navbar sticky-top navbar-dark bg-dark justify-content-between">
+        <form class="form-inline">
+            <a class="mx-1" th:href="@{/}">
+                <img class="icon img-fluid rounded-circle" th:src="@{/img/icon.png}" width="50" height="50">
+            </a>
+            <button type="button" class="btn btn-outline-light border-dark mx-1">Nueva Factura</button>
+            <button type="button" class="btn btn-outline-light border-dark mx-1">Nuevo Presupuesto</button>
+        </form>
+        <form class="form-inline">
+            <input class="form-control mx-1" type="search" placeholder="Búsqueda" aria-label="Búsqueda">
+            <button class="btn btn-outline-light border-dark mx-1" type="submit">Buscar</button>
+        </form>
+    </nav>
+</th:block>
+
+<th:block th:fragment="icon">
+    <div class="container-fluid fixed-bottom p-0">
+        <img class="img-fluid img-thumbnail rounded-circle float-right" th:src="@{/img/icon.png}" width="70" height="70">
+    </div>
+</th:block>

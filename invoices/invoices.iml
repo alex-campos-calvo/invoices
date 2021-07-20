@@ -114,6 +114,7 @@
     <orderEntry type="library" name="Maven: org.webjars:bootstrap:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:jquery:3.5.1" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:popper.js:1.16.0" level="project" />
+    <orderEntry type="library" name="Maven: org.webjars:mdbootstrap-bootstrap-material-design:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:font-awesome:5.0.13" level="project" />
     <orderEntry type="library" name="Maven: com.itextpdf:itextpdf:5.5.13.2" level="project" />
   </component>

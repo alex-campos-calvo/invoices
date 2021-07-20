@@ -1,4 +1,10 @@
-$('#invoice-edit-modal').on('show.bs.modal', function (event) {
+$(document).ready(function($) {
+    $(".enter-invoice").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+
+/*$('#invoice-edit-modal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var url = '/get-invoice/edit/' + button.data('id');
     $(this).find('#invoice-edit-modal-content').load(url, function(){
@@ -94,6 +100,8 @@ $('#create-invoice').click(function(e){
         item["lines"].push(line);
     });
 
+    console.log(JSON.stringify(item));
+
     $.ajax({
         type: "POST",
         url: "/save-new-invoice",
@@ -121,4 +129,4 @@ $('#add-line-new-invoice').click(function(e){
 
 $('.delete-line').click(function(e){
     $(this).parent().parent().remove();
-});
+});*/

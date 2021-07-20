@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Facturas</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/mdbootstrap-bootstrap-material-design/css/mdb.min.css}"/>
+</head>
+<body>
+
+<th:block th:replace="fragments/navbar/navbar :: navbar"></th:block>
+
+<div class="container-fluid p-5">
+    <form th:action="${'/save/' + invoice.id}" th:object="${invoice}" method="post">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label for="name" class="font-weight-bold">Nombre</label>
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="name" placeholder="Nombre del cliente" th:field="*{name}">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="nif" class="font-weight-bold">N.I.F.</label>
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="nif" placeholder="Número de identificación fiscal" th:field="*{nif}">
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label for="address" class="font-weight-bold">Dirección</label>
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="address" placeholder="Dirección" th:field="*{address}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="zip-code" class="font-weight-bold">Cód. Postal</label>
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="zip-code" placeholder="Código Postal" th:field="*{zip_code}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="state" class="font-weight-bold">Provincia</label>
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="state" placeholder="Provincia" th:field="*{state}">
+                </div>
+            </div>
+            <div class="col-sm">
+                <button type="submit" class="btn btn-dark btn-sm">Guardar</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:replace="fragments/navbar/navbar :: icon"></th:block>
+
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js}"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>
