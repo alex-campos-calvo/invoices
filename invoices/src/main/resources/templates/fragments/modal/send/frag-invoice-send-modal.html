@@ -10,31 +10,31 @@
             <div class="col-sm-8">
                 <div class="form-group">
                     <label for="send-name" class="font-weight-bold">Nombre</label>
-                    <input type="text" class="form-control form-control-sm" id="send-name" placeholder="Nombre del cliente" th:value="${invoice.getName()}" readonly>
+                    <input type="text" class="form-control form-control-sm" id="send-name" placeholder="Nombre del cliente" th:value="${invoice != null ? invoice.getName() : ''}" readonly>
                 </div>
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
                     <label for="send-nif" class="font-weight-bold">N.I.F.</label>
-                    <input type="text" class="form-control form-control-sm" id="send-nif" placeholder="Número de identificación fiscal" th:value="${invoice.getNif()}" readonly>
+                    <input type="text" class="form-control form-control-sm" id="send-nif" placeholder="Número de identificación fiscal" th:value="${invoice != null ? invoice.getNif() : ''}" readonly>
                 </div>
             </div>
             <div class="col-sm-8">
                 <div class="form-group">
                     <label for="send-address" class="font-weight-bold">Dirección</label>
-                    <input type="text" class="form-control form-control-sm" id="send-address" placeholder="Dirección" th:value="${invoice.getAddress()}" readonly>
+                    <input type="text" class="form-control form-control-sm" id="send-address" placeholder="Dirección" th:value="${invoice != null ? invoice.getAddress() : ''}" readonly>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label for="send-zip-code" class="font-weight-bold">Cód. Postal</label>
-                    <input type="text" class="form-control form-control-sm" id="send-zip-code" placeholder="Código Postal" th:value="${invoice.getZip_code()}" readonly>
+                    <input type="text" class="form-control form-control-sm" id="send-zip-code" placeholder="Código Postal" th:value="${invoice != null ? invoice.getZip_code() : ''}" readonly>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label for="send-state" class="font-weight-bold">Provincia</label>
-                    <input type="text" class="form-control form-control-sm" id="send-state" placeholder="Provincia" th:value="${invoice.getState()}" readonly>
+                    <input type="text" class="form-control form-control-sm" id="send-state" placeholder="Provincia" th:value="${invoice != null ? invoice.getState() : ''}" readonly>
                 </div>
             </div>
             <div class="col">
@@ -48,26 +48,27 @@
                     <div class="col-sm-2 my-1 font-weight-bold">
                         <span>Precio</span>
                     </div>
-                    <th:block th:each="invoiceLine, index : ${invoice.getLines()}">
-                        <div class="col-sm-2 my-1 h-100">
-                            <input th:data-id="${'send-quantity-' + index}" type="number" class="form-control form-control-sm" th:value="${invoiceLine.getQuantity()}" readonly>
-                        </div>
-                        <div class="col-sm-8 my-1 p-0">
-                            <textarea th:data-id="${'send-description-' + index}" class="form-control" rows="2" th:text="${invoiceLine.getDescription()}" readonly></textarea>
-                        </div>
-                        <div class="col-sm-2 my-1 h-100">
-                            <input th:data-id="${'send-price-' + index}" type="text" class="form-control form-control-sm" th:value="${invoiceLine.getPrice()}" readonly>
-                        </div>
-                    </th:block>
                 </div>
-                <span>
-                    <i class="fas fa-plus-square" style="font-size: 36px; color: black;"></i>
-                </span>
+                <th:block th:if="${invoice != null}">
+                    <th:block th:each="invoiceLine, iter : ${invoice.getLines()}">
+                            <div th:data-lines="${iter.index}" class="row">
+                                <div class="col-sm-2 my-1 h-100">
+                                    <input type="text" class="form-control form-control-sm border border-secondary" th:value="${invoiceLine.getQuantity()}" readonly>
+                                </div>
+                                <div class="col-sm-8 my-1 p-0 text-justify">
+                                    <div class="border border-secondary rounded p-1" th:text="${invoiceLine.getDescription()}" readonly></div>
+                                </div>
+                                <div class="col-sm-2 my-1 h-100">
+                                    <input type="number" class="form-control form-control-sm border border-secondary" min="0" step=".01" th:value="${invoiceLine.getPrice()}" readonly>
+                                </div>
+                            </div>
+                    </th:block>
+                </th:block>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-dark">Crear</button>
+        <button type="submit" class="btn btn-dark">Enviar</button>
     </div>
 </th:block>

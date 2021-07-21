@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Facturas</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/mdbootstrap-bootstrap-material-design/css/mdb.min.css}"/>
+</head>
+<body>
+
+<th:block th:replace="fragments/navbar/navbar :: navbar"></th:block>
+
+<div class="container-fluid p-5">
+    <div th:if="${success != null}" class="alert alert-success text-center" role="alert">
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error != null}" class="alert alert-danger text-center" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+    <form th:action="@{/save}" th:object="${invoice}" method="post">
+        <input class="form-control" th:field="*{id}" hidden/>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="num" class="font-weight-bold">Número</label>
+                    <input type="number" class="form-control" id="num" th:field="*{num}">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="name" class="font-weight-bold">Nombre</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="nif" class="font-weight-bold">N.I.F.</label>
+                    <input type="text" class="form-control" id="nif" th:field="*{nif}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="fecha" class="font-weight-bold">Fecha</label>
+                    <input type="date" class="form-control" id="fecha" th:field="*{fecha}">
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label for="address" class="font-weight-bold">Dirección</label>
+                    <input type="text" class="form-control" id="address" th:field="*{address}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="zip-code" class="font-weight-bold">Cód. Postal</label>
+                    <input type="text" class="form-control" id="zip-code" th:field="*{zip_code}">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="state" class="font-weight-bold">Provincia</label>
+                    <input type="text" class="form-control" id="state" th:field="*{state}">
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="width: 0%"   scope="col" class="font-weight-bold text-muted"></th>
+                <th style="width: 10%"  scope="col" class="font-weight-bold text-muted">Cantidad</th>
+                <th                     scope="col" class="font-weight-bold text-muted">Descripcion</th>
+                <th style="width: 10%"  scope="col" class="font-weight-bold text-muted">Precio</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="line, i : *{lines}">
+                <td>
+                    <input class="form-control" th:field="*{lines[__${i.index}__].id}" hidden/>
+                </td>
+                <td >
+                    <input type="number" id="quantity" class="form-control" th:field="*{lines[__${i.index}__].quantity}"/>
+                </td>
+                <td>
+                    <textarea id="description" class="md-textarea form-control" th:field="*{lines[__${i.index}__].description}" rows="3"/>
+                </td>
+                <td>
+                   <input type="number" id="price" class="form-control" th:field="*{lines[__${i.index}__].price}" step='0.01'/>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <span class="font-weight-bold">IVA €</span>
+                    <input type="number" class="form-control" th:field="*{iva}" disabled/>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <span class="font-weight-bold">Total €</span>
+                    <input type="number" class="form-control" th:field="*{total}" disabled/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-dark btn-sm">Guardar</button>
+    </form>
+</div>
+
+<th:block th:replace="fragments/navbar/navbar :: icon"></th:block>
+
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js}"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

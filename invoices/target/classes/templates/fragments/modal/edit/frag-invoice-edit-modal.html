@@ -10,31 +10,31 @@
             <div class="col-sm-8">
                 <div class="form-group">
                     <label for="edit-name" class="font-weight-bold">Nombre</label>
-                    <input type="text" class="form-control form-control-sm" id="edit-name" placeholder="Nombre del cliente" th:value="${invoice.getName()}">
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="edit-name" placeholder="Nombre del cliente" th:value="${invoice != null ? invoice.getName() : ''}">
                 </div>
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
                     <label for="edit-nif" class="font-weight-bold">N.I.F.</label>
-                    <input type="text" class="form-control form-control-sm" id="edit-nif" placeholder="Número de identificación fiscal" th:value="${invoice.getNif()}">
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="edit-nif" placeholder="Número de identificación fiscal" th:value="${invoice != null ? invoice.getNif() : ''}">
                 </div>
             </div>
             <div class="col-sm-8">
                 <div class="form-group">
                     <label for="edit-address" class="font-weight-bold">Dirección</label>
-                    <input type="text" class="form-control form-control-sm" id="edit-address" placeholder="Dirección" th:value="${invoice.getAddress()}">
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="edit-address" placeholder="Dirección" th:value="${invoice != null ? invoice.getAddress() : ''}">
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label for="edit-zip-code" class="font-weight-bold">Cód. Postal</label>
-                    <input type="text" class="form-control form-control-sm" id="edit-zip-code" placeholder="Código Postal" th:value="${invoice.getZip_code()}">
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="edit-zip-code" placeholder="Código Postal" th:value="${invoice != null ? invoice.getZip_code() : ''}">
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label for="edit-state" class="font-weight-bold">Provincia</label>
-                    <input type="text" class="form-control form-control-sm" id="edit-state" placeholder="Provincia" th:value="${invoice.getState()}">
+                    <input type="text" class="form-control form-control-sm border border-secondary" id="edit-state" placeholder="Provincia" th:value="${invoice != null ? invoice.getState() : ''}">
                 </div>
             </div>
             <div class="col">
@@ -42,32 +42,40 @@
                     <div class="col-sm-2 my-1 font-weight-bold">
                         <span>Cant.</span>
                     </div>
-                    <div class="col-sm-8 my-1 p-0 font-weight-bold">
+                    <div class="col-sm-7 my-1 p-0 font-weight-bold">
                         <span>Descripción</span>
                     </div>
                     <div class="col-sm-2 my-1 font-weight-bold">
                         <span>Precio</span>
                     </div>
+                    <div class="col-sm-1">
+
+                    </div>
+                </div>
+                <th:block th:if="${invoice != null}">
                     <th:block th:each="invoiceLine, iter : ${invoice.getLines()}">
-                        <div class="col-sm-2 my-1 h-100">
-                            <input th:data-id="${'edit-quantity-' + iter.index}" type="text" class="form-control form-control-sm" th:value="${invoiceLine.getQuantity()}">
-                        </div>
-                        <div class="col-sm-8 my-1 p-0">
-                            <div class="border border-dark p-1" th:data-id="${'edit-description-' + iter.index}" th:text="${invoiceLine.getDescription()}" contenteditable aria-multiline></div>
-                        </div>
-                        <div class="col-sm-2 my-1 h-100">
-                            <input th:data-id="${'edit-price-' + iter.index}" type="text" class="form-control form-control-sm" th:value="${invoiceLine.getPrice()}">
+                        <div th:data-lines-edit="${iter.index}" th:data-id="${invoiceLine.getId()}" class="row">
+                            <div class="col-sm-2 my-1 h-100">
+                                <input type="text" class="form-control form-control-sm border border-secondary" th:value="${invoiceLine.getQuantity()}">
+                            </div>
+                            <div class="col-sm-7 my-1 p-0 text-justify">
+                                <div class="description border border-secondary rounded p-1" th:text="${invoiceLine.getDescription()}" contenteditable aria-multiline></div>
+                            </div>
+                            <div class="col-sm-2 my-1 h-100">
+                                <input type="number" class="form-control form-control-sm border border-secondary" min="0" step=".01" th:value="${invoiceLine.getPrice()}">
+                            </div>
+                            <div class="col-sm-1 my-1 ml-0 pl-0">
+                                <button type="button" class="btn btn-danger btn-sm delete-line">X</button>
+                            </div>
                         </div>
                     </th:block>
-                </div>
-               <span>
-                    <i class="fas fa-plus-square" style="font-size: 36px; color: black;"></i>
-                </span>
+                </th:block>
+                <button type="submit" class="btn btn-dark btn-sm" id="add-line-edit-invoice">Añadir</button>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-dark">Crear</button>
+        <button type="button" class="btn btn-dark btn-sm" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-success" data-dismiss="modal" th:data-id="${invoice != null ? invoice.getId() : ''}" id="edit-invoice">Guardar</button>
     </div>
 </th:block>

@@ -3,65 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>Facturas</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/mdbootstrap-bootstrap-material-design/css/mdb.min.css}"/>
 </head>
 <body>
-<nav class="navbar sticky-top navbar-dark bg-dark justify-content-between">
-    <form class="form-inline">
-        <button type="button" class="btn btn-outline-light border-dark" data-toggle="modal" data-target="#invoice-new-modal">Nueva Factura</button>
-        <button type="button" class="btn btn-outline-light border-dark" data-toggle="modal" data-target="#budget-new-modal">Nuevo Presupuesto</button>
-    </form>
-    <form class="form-inline">
-        <input class="form-control" type="search" placeholder="Búsqueda" aria-label="Búsqueda">
-        <button class="btn btn-outline-light border-dark" type="submit">Buscar</button>
-    </form>
-</nav>
 
-<div class="container">
+<th:block th:replace="fragments/navbar/navbar :: navbar"></th:block>
+
+<div class="container-fluid p-5">
     <div class="row">
-        <div class="col-sm-6 p-3" th:each="invoice : ${invoices}">
-            <div th:replace="fragments/frag-invoice-card :: invoice-card"></div>
+        <div class="col-sm-2">
+            <div class="list-group font-weight-bold">
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() + 4)}" th:text="${(fecha.getYear() + 4)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() + 3)}" th:text="${(fecha.getYear() + 3)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() + 2)}" th:text="${(fecha.getYear() + 2)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() + 1)}" th:text="${(fecha.getYear() + 1)}"></a>
+                <a class="list-group-item list-group-item-action list-group-item-dark" th:href="${'/t/1-1-' + (fecha.getYear())}" th:text="${(fecha.getYear())}"></a>
+                <div class="list-group-item">
+                    <div class="list-group list-group-flush">
+                        <a th:class="${'list-group-item list-group-item-action ' + (trimester == '1' ? 'list-group-item-dark' : '')}" th:href="${'/t/1-1-' + fecha.getYear()}">Trimestre 1</a>
+                        <a th:class="${'list-group-item list-group-item-action ' + (trimester == '2' ? 'list-group-item-dark' : '')}" th:href="${'/t/1-4-' + fecha.getYear()}">Trimestre 2</a>
+                        <a th:class="${'list-group-item list-group-item-action ' + (trimester == '3' ? 'list-group-item-dark' : '')}" th:href="${'/t/1-7-' + fecha.getYear()}">Trimestre 3</a>
+                        <a th:class="${'list-group-item list-group-item-action ' + (trimester == '4' ? 'list-group-item-dark' : '')}" th:href="${'/t/1-10-'+ fecha.getYear()}">Trimestre 4</a>
+                    </div>
+                </div>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() - 1)}" th:text="${(fecha.getYear() - 1)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() - 2)}" th:text="${(fecha.getYear() - 2)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() - 3)}" th:text="${(fecha.getYear() - 3)}"></a>
+                <a class="list-group-item list-group-item-action" th:href="${'/t/1-1-' + (fecha.getYear() - 4)}" th:text="${(fecha.getYear() - 4)}"></a>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 5%"   scope="col">#</th>
+                    <th style="width: 15%"  scope="col">Fecha de factura</th>
+                    <th style="width: 20%"  scope="col">Nombre</th>
+                    <th style="width: 10%"  scope="col">N.I.F</th>
+                    <th                     scope="col">Dirección</th>
+                    <th                     scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="invoice, i : ${invoices}" class='enter-invoice' th:data-href="${'/invoice/' + invoice.id}">
+                    <td><a th:href="${'/invoice/'+invoice.id}" th:text="${invoice.num}">-</a></td>
+                    <td><span th:text="${invoice.name}">-</span></td>
+                    <td><span th:text="${invoice.fecha != null ? #temporals.format(invoice.fecha, 'dd-MM-yyyy') : ''}">-</span></td>
+                    <td><span th:text="${invoice.nif}">-</span></td>
+                    <td><span th:text="${invoice.address}">-</span></td>
+                    <td><a th:href="${'/invoice-pdf/' + invoice.id}" target="_blank"><span><i class="far fa-eye"></i></span></a></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-
-<div class="modal fade" id="invoice-edit-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content" id="invoice-edit-modal-content">
-            <th:block th:replace="fragments/modal/edit/frag-invoice-edit-modal :: frag-invoice-edit-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="invoice-send-modal" tabindex="-1" role="dialog" aria-labelledby="invoice-modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content" id="invoice-send-modal-content">
-            <th:block th:replace="fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal"></th:block>
-        </div>
-    </div>
-</div>
-
-<th:block th:replace="fragments/modal/new/frag-invoice-new-modal :: frag-invoice-new-modal"></th:block>
-<th:block th:replace="fragments/modal/new/frag-budget-new-modal :: frag-budget-new-modal"></th:block>
-
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-
-<script th:inline="javascript">
-    $('#invoice-edit-modal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var url = '/get-invoice/edit/' + button.data('id');
-        $(this).find('#invoice-edit-modal-content').load(url);
-    });
-
-    $('#invoice-send-modal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var url = '/get-invoice/send/' + button.data('id');
-        $(this).find('#invoice-send-modal-content').load(url);
-    });
-</script>
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js}"></script>
+<script th:src="@{/js/scripts.js}"></script>
 </body>
 </html>

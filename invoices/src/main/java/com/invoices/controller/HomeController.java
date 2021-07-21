@@ -1,95 +1,118 @@
 package com.invoices.controller;
 
 import com.invoices.model.Invoice;
-import com.invoices.model.InvoiceLine;
+import com.invoices.service.FileService;
 import com.invoices.service.InvoiceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.*;
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Controller
 public class HomeController {
 
-        @Autowired
-        private InvoiceService invoiceService;
+    private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
-        @GetMapping("/")
-        public String homePage(Model model) throws Exception {
-            invoiceService.create(
-                    754,
-                    "nombre cliente 1",
-                    "71473203J",
-                    "Avda. Picos de Europa, nº16",
-                    "24210",
-                    "León",
-                    "1359.50",
-                    List.of(
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 1 de la factura numero 754. Esto es la descripción 1 de la factura numero 754 Esto es la descripción 1 de la factura numero 754 Esto es la descripción 1 de la factura numero 754Esto es la descripción 1 de la factura numero 754 Esto es la descripción 1 de la factura numero 754 Esto es la descripción 1 de la factura numero 754").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 2 de la factura numero 754").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 3 de la factura numero 754").price("100.0").build()
-                    )
-            );
-            invoiceService.create(
-                    755,
-                    "nombre cliente 2",
-                    "71473203J",
-                    "Avda. Picos de Europa, nº16",
-                    "24210",
-                    "León",
-                    "1359.50",
-                    List.of(
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 1 de la factura numero 755").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 2 de la factura numero 755").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 3 de la factura numero 755").price("100.0").build()
-                    )
-            );
-            invoiceService.create(
-                    756,
-                    "nombre cliente 3",
-                    "71473203J",
-                    "Avda. Picos de Europa, nº16",
-                    "24210",
-                    "León",
-                    "1359.50",
-                    List.of(
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 1 de la factura numero 756").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 2 de la factura numero 756").price("100.0").build(),
-                            InvoiceLine.InvoiceLineFactory.create().quantity("1").description("Esto es la descripción 3 de la factura numero 756").price("100.0").build()
-                    )
-            );
+    @Autowired
+    private InvoiceService invoiceService;
 
-            model.addAttribute("invoice", Invoice.InvoiceFactory.create().build());
-            model.addAttribute("invoices", invoiceService.getAll());
-            return "home";
+    @Autowired
+    private FileService fileService;
+
+    @GetMapping(path = {"/", "/t/{fecha}"})
+    public String homePage(Model model, @PathVariable(required = false) @DateTimeFormat(pattern = "d-M-yyyy") LocalDate fecha) {
+        logger.debug("ACCESS HOME");
+        fecha = fecha != null ? fecha : LocalDate.now();
+        logger.info("LOADING TRIMESTER OF DATE " + fecha);
+        model.addAttribute("fecha", fecha);
+        model.addAttribute("trimester", invoiceService.chooseTrimester(fecha));
+        model.addAttribute("invoices", invoiceService.getAllByTrimester(fecha));
+        return "home";
+    }
+
+    @GetMapping("/invoice/{id}")
+    public String invoicePage(Model model, @PathVariable("id") Integer id) {
+        logger.debug("ACCESS INVOICE ID " + id);
+        model.addAttribute("invoice", invoiceService.getById(id));
+        return "invoice";
+    }
+
+    @GetMapping(path = "/invoice-pdf/{id}")
+    public void pdf(Model model, @PathVariable("id") Integer id, HttpServletResponse response) {
+        logger.info("LOADING PDF - ID " + id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=users_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) + ".pdf");
+        fileService.create(invoiceService.getById(id), response);
+    }
+
+    @PostMapping(path = "/save")
+    public String save(Model model, Invoice invoice, RedirectAttributes attributes) {
+        logger.info("SAVE: " + invoice);
+        try{
+            invoiceService.update(invoice);
+            attributes.addFlashAttribute("success","GUARDADO CORRECTAMENTE");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("error","HA OCURRIDO UN PROBLEMA DURANTE EL GUARDADO");
+            logger.error("ERROR: Ha ocurrido un error durante el guardado de la factura:");
+            logger.error("ERROR: " + e.getCause());
         }
+        return "redirect:/invoice/" + invoice.getId();
+    }
 
-        @PostMapping("/save-invoice")
-        public String saveInvoice(final Invoice invoice, Model model) {
-            System.out.println(invoice);
-            return "home";
-        }
+    /*
+    @PutMapping(path = "/delete-invoice/{id}")
+    public ResponseEntity<Invoice> deleteInvoice(@PathVariable("id") Integer id) {
+        invoiceService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 
-        @GetMapping("/get-invoice/edit/{id}")
-        public String getInvoiceEdit(Model model, @PathVariable("id") Optional<Integer> id) throws Exception {
-            if(id.isPresent()) {
-                model.addAttribute("invoice", invoiceService.getById(id.get()));
-            } else model.addAttribute("invoice", invoiceService.create());
+    @PostMapping(path = "/save/{id}", consumes = "application/json")
+    public ResponseEntity<Invoice> saveInvoice(@RequestBody Invoice invoice) {
+        System.out.println("LOG: Creating Invoice: " + invoice);
+        invoiceService.create(invoice);
+        return ResponseEntity.ok().build();
+    }
 
-            return "fragments/modal/edit/frag-invoice-edit-modal :: frag-invoice-edit-modal";
-        }
+    @PostMapping(path = "/update-invoice", consumes = "application/json")
+    public ResponseEntity<Invoice> updateInvoice(@RequestBody Invoice invoice) {
+        System.out.println("LOG: Updating Invoice: " + invoice);
+        invoiceService.update(invoice);
+        return ResponseEntity.ok().build();
+    }
 
-        @GetMapping("/get-invoice/send/{id}")
-        public String getInvoiceSend(Model model, @PathVariable("id") Optional<Integer> id) throws Exception {
-            if(id.isPresent()) {
-                model.addAttribute("invoice", invoiceService.getById(id.get()));
-            } else model.addAttribute("invoice", invoiceService.create());
+    @GetMapping("/get-invoice/edit/{id}")
+    public String getInvoiceEdit(Model model, @PathVariable("id") Integer id) {
+        if(id != null) {
+            Invoice invoice = invoiceService.getById(id);
+            invoice.getLines().sort(Comparator.comparing(InvoiceLine::getDescription));
+            model.addAttribute("invoice", invoice);
+        } else model.addAttribute("invoice", invoiceService.create());
 
-            return "fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal";
-        }
+        return "fragments/modal/edit/frag-invoice-edit-modal :: frag-invoice-edit-modal";
+    }
+
+    @GetMapping("/get-invoice/send/{id}")
+    public String getInvoiceSend(Model model, @PathVariable("id") Integer id) {
+        if(id != null) {
+            Invoice invoice = invoiceService.getById(id);
+            invoice.getLines().sort(Comparator.comparing(InvoiceLine::getDescription));
+            model.addAttribute("invoice", invoice);
+        } else model.addAttribute("invoice", invoiceService.create());
+
+        return "fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal";
+    }
+    */
 
 }
