@@ -3,9 +3,13 @@ package com.invoices.model;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "invoice")
@@ -42,6 +46,10 @@ public class Invoice {
 
     @Column(name = "state")
     private String state;
+
+    @Column(name = "fecha")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate fecha;
 
     @Column(name = "iva")
     private String iva;
@@ -128,6 +136,14 @@ public class Invoice {
         this.state = state;
     }
 
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
+
     public String getIva() {
         return iva;
     }
@@ -164,6 +180,7 @@ public class Invoice {
                 ", address='" + address + '\'' +
                 ", zip_code='" + zip_code + '\'' +
                 ", state='" + state + '\'' +
+                ", fecha=" + fecha +
                 ", iva='" + iva + '\'' +
                 ", total='" + total + '\'' +
                 ", lines=" + lines +
@@ -185,7 +202,7 @@ public class Invoice {
         }
 
         public InvoiceFactory number(int num) {
-            invoice.num = Integer.valueOf(num);
+            invoice.num = num;
             return this;
         }
 
@@ -210,6 +227,12 @@ public class Invoice {
         public InvoiceFactory state(String state) {
             if(state != null && !state.trim().isEmpty())
                 invoice.state = state;
+            return this;
+        }
+
+        public InvoiceFactory fecha(LocalDate fecha) {
+            if(fecha != null)
+                invoice.fecha = fecha;
             return this;
         }
 

@@ -1,10 +1,13 @@
+
+
+/*
 $(document).ready(function($) {
     $(".enter-invoice").click(function() {
         window.location = $(this).data("href");
     });
 });
 
-/*$('#invoice-edit-modal').on('show.bs.modal', function (event) {
+$('#invoice-edit-modal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var url = '/get-invoice/edit/' + button.data('id');
     $(this).find('#invoice-edit-modal-content').load(url, function(){
