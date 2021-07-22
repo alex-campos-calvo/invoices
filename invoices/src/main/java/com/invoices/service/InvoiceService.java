@@ -5,8 +5,8 @@ import com.invoices.model.Invoice;
 import com.invoices.model.Invoice.InvoiceFactory;
 import com.invoices.model.InvoiceLine;
 import com.invoices.repository.ConfigRepository;
+import com.invoices.repository.InvoiceLineRepository;
 import com.invoices.repository.InvoiceRepository;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
@@ -25,6 +25,9 @@ public class InvoiceService {
     @Autowired
     private InvoiceRepository invoiceRepository;
 
+    @Autowired
+    private InvoiceLineRepository invoiceLineRepository;
+
     public Invoice getById(long id) {
         Optional<Invoice> invoice = invoiceRepository.findById(id);
         return invoice.orElseGet(() -> InvoiceFactory.create().build());
@@ -42,9 +45,22 @@ public class InvoiceService {
         return invoiceRepository.findByFechaBetween(start, end);
     }
 
-    public void deleteById(long id) {
+    public boolean deleteById(long id) {
         Optional<Invoice> invoice = invoiceRepository.findById(id);
-        invoice.ifPresent(value -> invoiceRepository.delete(value));
+        if(invoice.isPresent()) {
+            invoiceRepository.delete(invoice.get());
+            return true;
+        } else
+            return false;
+    }
+
+    public InvoiceLine deleteLineById(long id) {
+        Optional<InvoiceLine> invoiceLine = invoiceLineRepository.findById(id);
+        if(invoiceLine.isPresent()) {
+            invoiceLineRepository.delete(invoiceLine.get());
+            return invoiceLine.get();
+        } else
+            return InvoiceLine.InvoiceLineFactory.create().build();
     }
 
     public Invoice create() {
@@ -55,6 +71,8 @@ public class InvoiceService {
                 .address("")
                 .zip_code("")
                 .state("")
+                .subtotal("")
+                .iva("")
                 .total("")
                 .addItems(new ArrayList<InvoiceLine>())
                 .build();
@@ -64,14 +82,19 @@ public class InvoiceService {
     }
 
     public Invoice create(Invoice invoice) throws Exception {
-        return create(invoice.getNum(), invoice.getName(), invoice.getNif(), invoice.getAddress(), invoice.getZip_code(), invoice.getState(), invoice.getFecha(), invoice.getLines());
+        if(invoice != null)
+            return create(invoice.getNum(), invoice.getName(), invoice.getNif(), invoice.getAddress(), invoice.getZip_code(), invoice.getCity(), invoice.getState(), invoice.getFecha(), invoice.getLines());
+        else {
+            return Invoice.InvoiceFactory.create().build();
+        }
     }
 
-    public Invoice create(Integer num, String name, String nif, String address, String zip_code, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) throws Exception {
-        if(!checkIfCreatable(num, name, nif, address, zip_code, state, fecha, invoiceLines)) throw new Exception("No es posible crear la factura con esos datos");
+    private Invoice create(Integer num, String name, String nif, String address, String zip_code, String city, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) throws Exception {
+        if(!checkIfCreatable(num, name, nif, address, zip_code, city, state, fecha, invoiceLines)) throw new Exception("No es posible crear la factura con esos datos");
 
         BigDecimal total = total(invoiceLines);
         BigDecimal iva = iva(total);
+        BigDecimal subtotal = subtotal(total, iva);
 
         Invoice invoice = InvoiceFactory.create()
                 .number(num != null ? num : 0)
@@ -79,8 +102,10 @@ public class InvoiceService {
                 .nif(nif != null ? nif.trim().toUpperCase(Locale.ROOT) : "")
                 .address(address != null ? StringUtils.capitalizeWords(address.trim()) : "")
                 .zip_code(zip_code != null ? zip_code : "")
+                .city(city != null ? StringUtils.capitalizeWords(city.trim()) : "")
                 .state(state != null ? StringUtils.capitalizeWords(state.trim()) : "")
                 .fecha(fecha != null ? fecha : LocalDate.now())
+                .subtotal(subtotal.setScale(2, RoundingMode.HALF_UP).toString())
                 .iva(iva.setScale(2, RoundingMode.HALF_UP).toString())
                 .total(total.setScale(2, RoundingMode.HALF_UP).toString())
                 .addItems(invoiceLines != null ? invoiceLines : new ArrayList<>())
@@ -91,12 +116,16 @@ public class InvoiceService {
     }
 
     public Invoice update(Invoice invoice) throws Exception {
-        return update(invoice.getId(), invoice.getNum(), invoice.getName(), invoice.getNif(), invoice.getAddress(), invoice.getZip_code(), invoice.getState(), invoice.getFecha(), invoice.getLines());
+        if(invoice != null)
+            return update(invoice.getId(), invoice.getNum(), invoice.getName(), invoice.getNif(), invoice.getAddress(), invoice.getZip_code(), invoice.getCity(), invoice.getState(), invoice.getFecha(), invoice.getLines());
+        else
+            return Invoice.InvoiceFactory.create().build();
     }
 
-    public Invoice update(long id, Integer num, String name, String nif, String address, String zip_code, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) {
+    private Invoice update(long id, Integer num, String name, String nif, String address, String zip_code, String city, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) {
         BigDecimal total = total(invoiceLines);
         BigDecimal iva = iva(total);
+        BigDecimal subtotal = subtotal(total, iva);
 
         Invoice invoice = getById(id);
         InvoiceFactory.update(invoice)
@@ -105,8 +134,10 @@ public class InvoiceService {
                 .nif(nif != null ? nif.trim().toUpperCase(Locale.ROOT) : "")
                 .address(address != null ? StringUtils.capitalizeWords(address.trim()) : "")
                 .zip_code(zip_code != null ? zip_code : "")
+                .city(city != null ? StringUtils.capitalizeWords(city.trim()) : "")
                 .state(state != null ? StringUtils.capitalizeWords(state.trim()) : "")
                 .fecha(fecha != null ? fecha : LocalDate.now())
+                .subtotal(subtotal.setScale(2, RoundingMode.HALF_UP).toString())
                 .iva(iva.setScale(2, RoundingMode.HALF_UP).toString())
                 .total(total.setScale(2, RoundingMode.HALF_UP).toString())
                 .addItems(invoiceLines != null ? invoiceLines : new ArrayList<>())
@@ -116,10 +147,11 @@ public class InvoiceService {
         return invoice;
     }
 
-    private boolean checkIfCreatable(Integer num, String name, String nif, String address, String zip_code, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) {
+    private boolean checkIfCreatable(Integer num, String name, String nif, String address, String zip_code, String city, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) {
         if((num != null)
                 || (name != null && !name.trim().isEmpty())
                 || (nif != null && !nif.trim().isEmpty())
+                || (city != null && !city.trim().isEmpty())
                 || (state != null && !state.trim().isEmpty())
                 || (fecha != null)
                 || (address != null && !address.trim().isEmpty())
@@ -154,6 +186,10 @@ public class InvoiceService {
     private BigDecimal iva(BigDecimal total){
         Config config = configRepository.findAll().get(0);
         return total != null ? total.multiply(BigDecimal.valueOf(config.getIva())) : BigDecimal.valueOf(0);
+    }
+
+    private BigDecimal subtotal(BigDecimal total, BigDecimal iva){
+        return total != null && iva != null ? total.subtract(iva) : BigDecimal.valueOf(0);
     }
 
     public String chooseTrimester(LocalDate date){

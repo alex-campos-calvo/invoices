@@ -119,20 +119,20 @@ public class InvoiceLine {
         }
 
         public InvoiceLine.InvoiceLineFactory quantity(String quantity) {
-            if(quantity != null && !quantity.trim().isEmpty())
-                invoiceLine.quantity = quantity;
+            if(quantity != null)
+                invoiceLine.quantity = quantity.trim();
             return this;
         }
 
         public InvoiceLine.InvoiceLineFactory description(String description) {
-            if(description != null && !description.trim().isEmpty())
-                invoiceLine.description = description;
+            if(description != null)
+                invoiceLine.description = description.trim();
             return this;
         }
 
         public InvoiceLine.InvoiceLineFactory price(String price) {
-            if(price != null && !price.trim().isEmpty())
-                invoiceLine.price = price;
+            if(price != null)
+                invoiceLine.price = price.trim();
             return this;
         }
 
