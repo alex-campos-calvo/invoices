@@ -3,6 +3,7 @@ package com.invoices.controller;
 import com.invoices.model.Invoice;
 import com.invoices.model.InvoiceLine;
 import com.invoices.service.FileService;
+import com.invoices.service.GraphService;
 import com.invoices.service.InvoiceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.*;
 
 @Controller
 public class HomeController {
@@ -27,6 +29,9 @@ public class HomeController {
 
     @Autowired
     private InvoiceService invoiceService;
+
+    @Autowired
+    private GraphService graphService;
 
     @Autowired
     private FileService fileService;
@@ -112,6 +117,16 @@ public class HomeController {
             logger.error("ERROR: " + e.getCause());
         }
         return "redirect:/invoice/" + i.getId();
+    }
+
+    @GetMapping("/graphs")
+    public String graphsPage(Model model) {
+        logger.debug("ACCESS GRAPHS");
+        List<Invoice> invoices = invoiceService.getAllByYear(LocalDate.now().getYear());
+        model.addAttribute("lineGraphData", graphService.lineGraphData(invoices));
+        model.addAttribute("barGraphData", graphService.barGraphData(invoices));
+        model.addAttribute("dateGraphData", graphService.dateGraphData(invoices));
+        return "graphs";
     }
 
 }

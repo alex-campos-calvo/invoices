@@ -45,6 +45,12 @@ public class InvoiceService {
         return invoiceRepository.findByFechaBetween(start, end);
     }
 
+    public List<Invoice> getAllByYear(Integer year) {
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+        return invoiceRepository.findByFechaBetween(start, end);
+    }
+
     public boolean deleteById(long id) {
         Optional<Invoice> invoice = invoiceRepository.findById(id);
         if(invoice.isPresent()) {
@@ -92,9 +98,9 @@ public class InvoiceService {
     private Invoice create(Integer num, String name, String nif, String address, String zip_code, String city, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) throws Exception {
         if(!checkIfCreatable(num, name, nif, address, zip_code, city, state, fecha, invoiceLines)) throw new Exception("No es posible crear la factura con esos datos");
 
-        BigDecimal total = total(invoiceLines);
-        BigDecimal iva = iva(total);
-        BigDecimal subtotal = subtotal(total, iva);
+        BigDecimal subtotal = subtotal(invoiceLines);
+        BigDecimal iva = iva(subtotal);
+        BigDecimal total = total(subtotal, iva);
 
         Invoice invoice = InvoiceFactory.create()
                 .number(num != null ? num : 0)
@@ -123,9 +129,9 @@ public class InvoiceService {
     }
 
     private Invoice update(long id, Integer num, String name, String nif, String address, String zip_code, String city, String state, LocalDate fecha, List<InvoiceLine> invoiceLines) {
-        BigDecimal total = total(invoiceLines);
-        BigDecimal iva = iva(total);
-        BigDecimal subtotal = subtotal(total, iva);
+        BigDecimal subtotal = subtotal(invoiceLines);
+        BigDecimal iva = iva(subtotal);
+        BigDecimal total = total(subtotal, iva);
 
         Invoice invoice = getById(id);
         InvoiceFactory.update(invoice)
@@ -169,7 +175,7 @@ public class InvoiceService {
         return false;
     }
 
-    private BigDecimal total(List<InvoiceLine> invoiceLines){
+    private BigDecimal subtotal(List<InvoiceLine> invoiceLines){
         BigDecimal total = BigDecimal.valueOf(0);
         if(invoiceLines != null)
             for(InvoiceLine invoiceLine : invoiceLines) {
@@ -188,8 +194,8 @@ public class InvoiceService {
         return total != null ? total.multiply(BigDecimal.valueOf(config.getIva())) : BigDecimal.valueOf(0);
     }
 
-    private BigDecimal subtotal(BigDecimal total, BigDecimal iva){
-        return total != null && iva != null ? total.subtract(iva) : BigDecimal.valueOf(0);
+    private BigDecimal total(BigDecimal subtotal, BigDecimal iva){
+        return subtotal != null && iva != null ? subtotal.add(iva) : BigDecimal.valueOf(0);
     }
 
     public String chooseTrimester(LocalDate date){
