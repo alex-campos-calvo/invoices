@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Facturas</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/mdbootstrap-bootstrap-material-design/css/mdb.min.css}"/>
+</head>
+<body>
+
+<th:block th:replace="fragments/navbar/navbar :: navbar"></th:block>
+
+<div class="container-fluid p-5">
+    <h3 class="text-center mb-5">
+        <span>DATOS FACTURACIÓN </span>
+        <span th:text="${#dates.year(#dates.createNow())}"></span>
+    </h3>
+    <div class="row">
+        <div class="col-sm-4">
+            <div id="linechart_material">
+
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div id="top_x_div">
+
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div id="linechart_material_date">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/mdbootstrap-bootstrap-material-design/js/mdb.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/scripts.js}"></script>
+<script type="text/javascript" th:src="@{/js/chart-loader.js}"></script>>
+<script th:inline="javascript">
+    google.charts.load('current', {'packages':['line']});
+    google.charts.setOnLoadCallback(drawChart1);
+
+    function drawChart1() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Nº Factura');
+        data.addColumn('number', 'Euros (€)');
+
+        data.addRows([[${lineGraphData}]]);
+
+        var options = {
+            height: 500,
+            chart: {
+                title: 'Rendimiento De Ventas',
+                subtitle: 'Facturas ordenadas por fechas'
+            },
+            legend: { position: 'none' }
+        }
+
+        var chart = new google.charts.Line(document.getElementById('linechart_material'));
+        chart.draw(data, google.charts.Line.convertOptions(options));
+    }
+
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart2);
+
+    function drawChart2() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Trimestre');
+        data.addColumn('number', 'Euros (€)');
+
+        data.addRows([[${barGraphData}]]);
+
+        var options = {
+            height: 500,
+            chart: {
+                title: 'Total Euros (€) Por Trimestre',
+                subtitle: 'Muestra los trimestres del año actual'
+            },
+            legend: { position: 'none' }
+        }
+
+        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+    }
+
+    google.charts.load('current', {'packages':['line']});
+    google.charts.setOnLoadCallback(drawChart3);
+
+    function drawChart3() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'Fecha De La Factura');
+        data.addColumn('number', 'Euros (€)');
+
+        /*<![CDATA[*/
+        data.addRows( /*[(@{${dateGraphData}})]*/ );
+        /*]]>*/
+
+        var options = {
+            height: 500,
+            chart: {
+                title: 'Repartición De Facturas A Lo Largo Del Año Actual',
+                subtitle: 'Facturas ordenadas por fechas'
+            },
+            legend: { position: 'none' },
+            hAxis: {
+                format: 'd/M/yyyy',
+                gridlines: { count : 5 }
+            },
+            vAxis: {
+                minValue: 0,
+                gridlines: { color : 'none' }
+            }
+        }
+
+        var chart = new google.charts.Line(document.getElementById('linechart_material_date'));
+        chart.draw(data, google.charts.Line.convertOptions(options));
+    }
+</script>
+
+</body>
+</html>

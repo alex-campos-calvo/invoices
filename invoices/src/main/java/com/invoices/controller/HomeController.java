@@ -1,7 +1,9 @@
 package com.invoices.controller;
 
 import com.invoices.model.Invoice;
+import com.invoices.model.InvoiceLine;
 import com.invoices.service.FileService;
+import com.invoices.service.GraphService;
 import com.invoices.service.InvoiceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.*;
 
 @Controller
 public class HomeController {
@@ -27,6 +29,9 @@ public class HomeController {
 
     @Autowired
     private InvoiceService invoiceService;
+
+    @Autowired
+    private GraphService graphService;
 
     @Autowired
     private FileService fileService;
@@ -43,10 +48,33 @@ public class HomeController {
     }
 
     @GetMapping("/invoice/{id}")
-    public String invoicePage(Model model, @PathVariable("id") Integer id) {
+    public String invoicePage(Model model, @PathVariable(required = false) Integer id) {
+        if(id == null) return "redirect:/";
         logger.debug("ACCESS INVOICE ID " + id);
         model.addAttribute("invoice", invoiceService.getById(id));
         return "invoice";
+    }
+
+    @GetMapping(path = {"/invoice", "/invoice/"})
+    public String createInvoicePage(Model model) {
+        logger.debug("ACCESS CREATE INVOICE");
+        Invoice invoice = Invoice.InvoiceFactory.create().build();
+        model.addAttribute("invoice", invoice);
+        return "redirect:/invoice/" + invoice.getId();
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteInvoice(Model model, @PathVariable("id") Integer id) {
+        logger.info("DELETE INVOICE ID " + id);
+        invoiceService.deleteById(id);
+        return "redirect:/";
+    }
+
+    @GetMapping(path = "/line/{id}")
+    public String deleteLine(Model model, @PathVariable("id") Integer id) {
+        logger.info("DELETE INVOICE LINE ID " + id);
+        InvoiceLine invoiceLine = invoiceService.deleteLineById(id);
+        return "redirect:/invoice/" + invoiceLine.getInvoice().getId();
     }
 
     @GetMapping(path = "/invoice-pdf/{id}")
@@ -57,62 +85,48 @@ public class HomeController {
         fileService.create(invoiceService.getById(id), response);
     }
 
-    @PostMapping(path = "/save")
-    public String save(Model model, Invoice invoice, RedirectAttributes attributes) {
-        logger.info("SAVE: " + invoice);
+    @PostMapping(path = "/save", params="action=line")
+    public String line(Model model, Invoice invoice) {
+        logger.info("ADDING LINE: " + invoice);
+        Invoice i = Invoice.InvoiceFactory.create().build();
         try{
-            invoiceService.update(invoice);
-            attributes.addFlashAttribute("success","GUARDADO CORRECTAMENTE");
+            invoice.getLines().add(
+                    InvoiceLine.InvoiceLineFactory.create()
+                            .quantity("")
+                            .description("")
+                            .price("")
+                            .build());
+            i = invoiceService.update(invoice);
         } catch (Exception e) {
-            attributes.addFlashAttribute("error","HA OCURRIDO UN PROBLEMA DURANTE EL GUARDADO");
-            logger.error("ERROR: Ha ocurrido un error durante el guardado de la factura:");
+            logger.error("ERROR: Ha ocurrido un error durante el guardado de una linea para la factura");
             logger.error("ERROR: " + e.getCause());
         }
-        return "redirect:/invoice/" + invoice.getId();
+        return "redirect:/invoice/" + i.getId();
     }
 
-    /*
-    @PutMapping(path = "/delete-invoice/{id}")
-    public ResponseEntity<Invoice> deleteInvoice(@PathVariable("id") Integer id) {
-        invoiceService.deleteById(id);
-        return ResponseEntity.ok().build();
+    @PostMapping(path = "/save", params="action=save")
+    public String save(Model model, Invoice invoice, RedirectAttributes attributes) {
+        logger.info("SAVING: " + invoice);
+        Invoice i = Invoice.InvoiceFactory.create().build();
+        try {
+            i = invoiceService.update(invoice);
+            attributes.addFlashAttribute("success", "GUARDADO CORRECTAMENTE");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("error", "HA OCURRIDO UN PROBLEMA DURANTE EL GUARDADO");
+            logger.error("ERROR: Ha ocurrido un error durante el guardado de la factura");
+            logger.error("ERROR: " + e.getCause());
+        }
+        return "redirect:/invoice/" + i.getId();
     }
 
-    @PostMapping(path = "/save/{id}", consumes = "application/json")
-    public ResponseEntity<Invoice> saveInvoice(@RequestBody Invoice invoice) {
-        System.out.println("LOG: Creating Invoice: " + invoice);
-        invoiceService.create(invoice);
-        return ResponseEntity.ok().build();
+    @GetMapping("/graphs")
+    public String graphsPage(Model model) {
+        logger.debug("ACCESS GRAPHS");
+        List<Invoice> invoices = invoiceService.getAllByYear(LocalDate.now().getYear());
+        model.addAttribute("lineGraphData", graphService.lineGraphData(invoices));
+        model.addAttribute("barGraphData", graphService.barGraphData(invoices));
+        model.addAttribute("dateGraphData", graphService.dateGraphData(invoices));
+        return "graphs";
     }
-
-    @PostMapping(path = "/update-invoice", consumes = "application/json")
-    public ResponseEntity<Invoice> updateInvoice(@RequestBody Invoice invoice) {
-        System.out.println("LOG: Updating Invoice: " + invoice);
-        invoiceService.update(invoice);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/get-invoice/edit/{id}")
-    public String getInvoiceEdit(Model model, @PathVariable("id") Integer id) {
-        if(id != null) {
-            Invoice invoice = invoiceService.getById(id);
-            invoice.getLines().sort(Comparator.comparing(InvoiceLine::getDescription));
-            model.addAttribute("invoice", invoice);
-        } else model.addAttribute("invoice", invoiceService.create());
-
-        return "fragments/modal/edit/frag-invoice-edit-modal :: frag-invoice-edit-modal";
-    }
-
-    @GetMapping("/get-invoice/send/{id}")
-    public String getInvoiceSend(Model model, @PathVariable("id") Integer id) {
-        if(id != null) {
-            Invoice invoice = invoiceService.getById(id);
-            invoice.getLines().sort(Comparator.comparing(InvoiceLine::getDescription));
-            model.addAttribute("invoice", invoice);
-        } else model.addAttribute("invoice", invoiceService.create());
-
-        return "fragments/modal/send/frag-invoice-send-modal :: frag-invoice-send-modal";
-    }
-    */
 
 }

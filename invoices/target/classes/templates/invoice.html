@@ -28,7 +28,7 @@
                     <input type="number" class="form-control" id="num" th:field="*{num}">
                 </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label for="name" class="font-weight-bold">Nombre</label>
                     <input type="text" class="form-control" id="name" th:field="*{name}">
@@ -46,16 +46,22 @@
                     <input type="date" class="form-control" id="fecha" th:field="*{fecha}">
                 </div>
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="zip-code" class="font-weight-bold">Cód. Postal</label>
+                    <input type="text" class="form-control" id="zip-code" th:field="*{zip_code}">
+                </div>
+            </div>
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label for="address" class="font-weight-bold">Dirección</label>
                     <input type="text" class="form-control" id="address" th:field="*{address}">
                 </div>
             </div>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 <div class="form-group">
-                    <label for="zip-code" class="font-weight-bold">Cód. Postal</label>
-                    <input type="text" class="form-control" id="zip-code" th:field="*{zip_code}">
+                    <label for="city" class="font-weight-bold">Municipio</label>
+                    <input type="text" class="form-control" id="city" th:field="*{city}">
                 </div>
             </div>
             <div class="col-sm-2">
@@ -69,6 +75,7 @@
             <thead>
             <tr>
                 <th style="width: 0%"   scope="col" class="font-weight-bold text-muted"></th>
+                <th style="width: 1%"  scope="col" class="font-weight-bold text-muted">#</th>
                 <th style="width: 10%"  scope="col" class="font-weight-bold text-muted">Cantidad</th>
                 <th                     scope="col" class="font-weight-bold text-muted">Descripcion</th>
                 <th style="width: 10%"  scope="col" class="font-weight-bold text-muted">Precio</th>
@@ -78,6 +85,9 @@
             <tr th:each="line, i : *{lines}">
                 <td>
                     <input class="form-control" th:field="*{lines[__${i.index}__].id}" hidden/>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-danger" th:href="${'/line/' + (line.id)}"><i class="far fa-trash-alt"></i> Borrar</a>
                 </td>
                 <td >
                     <input type="number" id="quantity" class="form-control" th:field="*{lines[__${i.index}__].quantity}"/>
@@ -93,12 +103,14 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <td>
                     <span class="font-weight-bold">IVA €</span>
                     <input type="number" class="form-control" th:field="*{iva}" disabled/>
                 </td>
             </tr>
             <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -109,11 +121,29 @@
             </tr>
             </tbody>
         </table>
-        <button type="submit" class="btn btn-dark btn-sm">Guardar</button>
+        <a class="btn btn-dark float-right" th:href="${'/invoice-pdf/' + invoice.id}" target="_blank"><span><i class="far fa-eye"></i> Ver</span></a>
+        <button class="btn btn-success float-right" type="submit" name="action" value="save">Guardar</button>
+        <button class="btn btn-success float-right" type="submit" name="action" value="line">Añadir Producto</button>
+        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-modal">Eliminar</button>
     </form>
 </div>
 
-<th:block th:replace="fragments/navbar/navbar :: icon"></th:block>
+<div class="modal fade" id="delete-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">¿Estás seguro de querer eliminar la factura?</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cancelar</button>
+                <a class="btn btn-danger" th:href="${'/delete/'+invoice.id}">Eliminar factura</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>

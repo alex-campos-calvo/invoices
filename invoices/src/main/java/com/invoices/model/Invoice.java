@@ -44,12 +44,18 @@ public class Invoice {
     @Column(name = "zip_code")
     private String zip_code;
 
+    @Column(name = "city")
+    private String city;
+
     @Column(name = "state")
     private String state;
 
     @Column(name = "fecha")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fecha;
+
+    @Column(name = "subtotal")
+    private String subtotal;
 
     @Column(name = "iva")
     private String iva;
@@ -128,6 +134,14 @@ public class Invoice {
         this.zip_code = zip_code;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public String getState() {
         return state;
     }
@@ -142,6 +156,14 @@ public class Invoice {
 
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+
+    public String getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(String subtotal) {
+        this.subtotal = subtotal;
     }
 
     public String getIva() {
@@ -179,8 +201,10 @@ public class Invoice {
                 ", nif='" + nif + '\'' +
                 ", address='" + address + '\'' +
                 ", zip_code='" + zip_code + '\'' +
+                ", city='" + city + '\'' +
                 ", state='" + state + '\'' +
                 ", fecha=" + fecha +
+                ", subtotal='" + subtotal + '\'' +
                 ", iva='" + iva + '\'' +
                 ", total='" + total + '\'' +
                 ", lines=" + lines +
@@ -207,26 +231,32 @@ public class Invoice {
         }
 
         public InvoiceFactory name(String name) {
-            if(name != null && !name.trim().isEmpty())
-                invoice.name = name;
+            if(name != null)
+                invoice.name = name.trim();
             return this;
         }
 
         public InvoiceFactory nif(String nif) {
-            if(nif != null && !nif.trim().isEmpty())
-                invoice.nif = nif;
+            if(nif != null)
+                invoice.nif = nif.trim();
             return this;
         }
 
         public InvoiceFactory address(String address) {
-            if(address != null && !address.trim().isEmpty())
-                invoice.address = address;
+            if(address != null)
+                invoice.address = address.trim();
+            return this;
+        }
+
+        public InvoiceFactory city(String city) {
+            if(city != null)
+                invoice.city = city.trim();
             return this;
         }
 
         public InvoiceFactory state(String state) {
-            if(state != null && !state.trim().isEmpty())
-                invoice.state = state;
+            if(state != null)
+                invoice.state = state.trim();
             return this;
         }
 
@@ -237,20 +267,26 @@ public class Invoice {
         }
 
         public InvoiceFactory zip_code(String zip_code) {
-            if(zip_code != null && !zip_code.trim().isEmpty())
-                invoice.zip_code = zip_code;
+            if(zip_code != null)
+                invoice.zip_code = zip_code.trim();
+            return this;
+        }
+
+        public InvoiceFactory subtotal(String subtotal) {
+            if(subtotal != null)
+                invoice.subtotal = subtotal.trim();
             return this;
         }
 
         public InvoiceFactory iva(String iva) {
-            if(iva != null && !iva.trim().isEmpty())
-                invoice.iva = iva;
+            if(iva != null)
+                invoice.iva = iva.trim();
             return this;
         }
 
         public InvoiceFactory total(String total) {
-            if(total != null && !total.trim().isEmpty())
-                invoice.total = total;
+            if(total != null)
+                invoice.total = total.trim();
             return this;
         }
 
